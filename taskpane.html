@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>PayTM Receipt Security Check</title>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .warning-banner {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            border: 2px solid #c92a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .warning-banner.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .warning-banner h2 {
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .warning-icon {
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .warning-banner p {
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .sender-info {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #fff;
+            word-break: break-all;
+        }
+
+        .sender-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .safe-banner {
+            background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+            border: 2px solid #2f9e44;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .safe-banner.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .safe-banner h2 {
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .safe-icon {
+            font-size: 24px;
+        }
+
+        .safe-banner p {
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .info-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .info-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0078d4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .button-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #0078d4;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #005a9e;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .error-message {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-message" id="errorMessage"></div>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            Analyzing email...
+        </div>
+
+        <div class="warning-banner" id="warningBanner">
+            <h2>
+                <span class="warning-icon">⚠️</span>
+                External Sender Alert
+            </h2>
+            <p>This receipt email is from an external domain, not from PayTM.com</p>
+            <p><strong>Be cautious:</strong> Verify this email is legitimate before taking any action or sharing personal information.</p>
+            <div class="sender-info">
+                <div class="sender-label">Email From:</div>
+                <div id="senderEmail"></div>
+            </div>
+        </div>
+
+        <div class="safe-banner" id="safeBanner">
+            <h2>
+                <span class="safe-icon">✓</span>
+                Trusted Domain
+            </h2>
+            <p>This email is from the official PayTM.com domain. It appears to be legitimate.</p>
+        </div>
+
+        <div class="info-section">
+            <h3>Email Details</h3>
+            <div class="info-item">
+                <div class="info-label">From</div>
+                <div class="info-value" id="fromField">—</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Subject</div>
+                <div class="info-value" id="subjectField">—</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Status</div>
+                <div class="info-value" id="statusField">—</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Sender Domain</div>
+                <div class="info-value" id="domainField">—</div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-secondary" onclick="refreshCheck()">Refresh</button>
+            <button class="btn-primary" onclick="reportPhishing()">Report Phishing</button>
+        </div>
+    </div>
+
+    <script>
+        Office.onReady((reason) => {
+            if (reason === Office.MailboxEnums.ItemType.Message) {
+                analyzeEmail();
+            }
+        });
+
+        async function analyzeEmail() {
+            try {
+                const mailbox = Office.context.mailbox;
+                const item = mailbox.item;
+
+                // Get email details
+                const fromEmail = item.from?.emailAddress || 'Unknown';
+                const subject = item.subject || 'No Subject';
+                
+                // Extract domain from email
+                const domain = extractDomain(fromEmail);
+                const isPayTMDomain = domain.toLowerCase() === 'paytm.com';
+
+                // Update UI with email details
+                document.getElementById('fromField').textContent = fromEmail;
+                document.getElementById('subjectField').textContent = subject;
+                document.getElementById('domainField').textContent = domain;
+                document.getElementById('senderEmail').textContent = fromEmail;
+                document.getElementById('loading').style.display = 'none';
+
+                // Show appropriate banner
+                if (isPayTMDomain) {
+                    document.getElementById('safeBanner').classList.add('show');
+                    document.getElementById('statusField').textContent = '✓ Trusted PayTM Domain';
+                    document.getElementById('statusField').style.color = '#2f9e44';
+                } else {
+                    document.getElementById('warningBanner').classList.add('show');
+                    document.getElementById('statusField').textContent = '⚠️ External Domain - Use Caution';
+                    document.getElementById('statusField').style.color = '#c92a2a';
+                }
+
+            } catch (error) {
+                console.error('Error analyzing email:', error);
+                showError('Unable to analyze email. Please try again.');
+            }
+        }
+
+        function extractDomain(email) {
+            if (!email || typeof email !== 'string') return 'Unknown';
+            const parts = email.split('@');
+            return parts.length > 1 ? parts[1] : 'Unknown';
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function refreshCheck() {
+            document.getElementById('warningBanner').classList.remove('show');
+            document.getElementById('safeBanner').classList.remove('show');
+            document.getElementById('loading').style.display = 'block';
+            analyzeEmail();
+        }
+
+        function reportPhishing() {
+            const fromEmail = document.getElementById('fromField').textContent;
+            alert(`Report email from "${fromEmail}" as phishing:\n\n1. Forward to: paytm-security@paytm.com\n2. Include original email headers\n3. Note any suspicious content`);
+        }
+    </script>
+</body>
+</html>
