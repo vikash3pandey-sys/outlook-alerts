@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:type="MailApp">
+  <Id>12345678-1234-1234-1234-PayTMChecker99</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>PayTM Receipt Checker</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="PayTM Receipt Checker"/>
+  <Description DefaultValue="Warning banner for non-PayTM emails"/>
+  
+  <Hosts>
+    <Host xsi:type="MailHost">
+      <DesktopFormFactor>
+        <ExtensionPoint xsi:type="MessageComposeCommandSurface">
+          <OfficeTab id="TabDefault">
+            <Group id="msgComposeGroup">
+              <Label resid="groupLabel"/>
+              <Control xsi:type="Button" id="msgComposeOpenPaneButton">
+                <Label resid="paneButtonLabel"/>
+                <Supertip>
+                  <Title resid="paneButtonLabel"/>
+                  <Description resid="paneButtonDesc"/>
+                </Supertip>
+                <Action xsi:type="ShowTaskPane">
+                  <SourceLocation resid="composePaneUrl"/>
+                </Action>
+              </Control>
+            </Group>
+          </OfficeTab>
+        </ExtensionPoint>
+      </DesktopFormFactor>
+    </Host>
+  </Hosts>
+
+  <Permissions>ReadWriteItem</Permissions>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+                    xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+          <FunctionFile resid="functionFile"/>
+          <ExtensionPoint xsi:type="MessageComposeCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="msgComposeGroup">
+                <Label resid="groupLabel"/>
+                <Control xsi:type="Button" id="msgComposeOpenPaneButton">
+                  <Label resid="paneButtonLabel"/>
+                  <Supertip>
+                    <Title resid="paneButtonLabel"/>
+                    <Description resid="paneButtonDesc"/>
+                  </Supertip>
+                  <Action xsi:type="ShowTaskPane">
+                    <SourceLocation resid="composePaneUrl"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+
+    <Resources>
+      <bt:Images>
+        <bt:Image id="icon16" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/icon16.png"/>
+        <bt:Image id="icon32" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/icon32.png"/>
+        <bt:Image id="icon80" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/icon80.png"/>
+      </bt:Images>
+
+      <bt:Urls>
+        <bt:Url id="functionFile" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/commands.html"/>
+        <bt:Url id="composePaneUrl" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/warning-banner.html"/>
+      </bt:Urls>
+
+      <bt:ShortStrings>
+        <bt:String id="groupLabel" DefaultValue="PayTM Check"/>
+        <bt:String id="paneButtonLabel" DefaultValue="Check Recipients"/>
+        <bt:String id="paneButtonDesc" DefaultValue="Verify email recipients - shows warning for external emails"/>
+      </bt:ShortStrings>
+
+      <bt:LongStrings/>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>
