@@ -5,275 +5,120 @@
     <title>PayTM Safe Send</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 0; min-height: 100vh; }
-        .container { padding: 16px; }
-        .header { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px; padding: 12px; background: white; border-radius: 8px; border-left: 4px solid #ff6b6b; }
-        
-        .warning-banner { display: none; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; padding: 16px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3); }
-        .warning-banner.show { display: block; }
-        .warning-title { font-weight: 700; font-size: 15px; margin-bottom: 12px; }
-        .recipients-list { background: rgba(255, 255, 255, 0.2); border-radius: 6px; padding: 12px; margin-bottom: 12px; font-size: 12px; max-height: 200px; overflow-y: auto; }
-        .recipient-item { padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.15); word-break: break-all; }
-        .recipient-item:last-child { border-bottom: none; }
-        .warning-message { font-size: 12px; line-height: 1.5; margin-bottom: 12px; padding: 12px; background: rgba(0, 0, 0, 0.1); border-radius: 4px; }
-        
-        .safe-banner { display: none; background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%); color: white; padding: 14px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
-        .safe-banner.show { display: flex; align-items: center; gap: 8px; }
-        
-        .status-panel { background: white; border-radius: 8px; padding: 12px; margin-bottom: 12px; border: 1px solid #e0e0e0; font-size: 12px; }
-        .status-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .status-row:last-child { border-bottom: none; }
-        .status-label { color: #666; font-weight: 500; }
-        .status-value { font-weight: 700; color: #333; }
-        .status-value.warning { color: #ff6b6b; }
-        .status-value.safe { color: #51cf66; }
-        
-        .empty-state { text-align: center; padding: 60px 20px; color: #999; }
-        .empty-icon { font-size: 48px; margin-bottom: 16px; }
-        .empty-text { font-size: 12px; line-height: 1.6; }
-        
-        .status-indicator { margin-top: 20px; padding: 12px; background: #e3f2fd; border-radius: 6px; border-left: 4px solid #1976d2; font-size: 11px; color: #1565c0; }
-        .status-indicator.success { background: #e8f5e9; border-left-color: #51cf66; color: #2e7d32; }
-        .status-indicator.error { background: #ffebee; border-left-color: #ff6b6b; color: #c62828; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto; background: #f5f5f5; padding: 16px; }
+        .header { font-size: 16px; font-weight: 600; color: #333; padding: 12px; background: white; border-radius: 8px; border-left: 4px solid #ff6b6b; margin-bottom: 16px; }
+        .content { background: white; border-radius: 8px; padding: 20px; text-align: center; color: #666; }
+        .emoji { font-size: 48px; margin-bottom: 16px; }
+        .text { font-size: 14px; line-height: 1.6; color: #999; }
+        .warning-box { background: #ffebee; border: 1px solid #ffcdd2; border-radius: 6px; padding: 12px; margin-top: 16px; color: #c62828; font-size: 12px; display: none; }
+        .warning-box.show { display: block; }
+        .external-list { margin-top: 12px; text-align: left; }
+        .recipient { padding: 8px; background: #fff3e0; border-radius: 4px; margin: 4px 0; font-size: 12px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">⚠️ PayTM Safe Send</div>
-        
-        <div id="warningBanner" class="warning-banner">
-            <div class="warning-title">⚠️ External Recipients</div>
-            <div class="recipients-list" id="recipientsList"></div>
-            <div class="warning-message">Only paytm.com is trusted. Verify these recipients before sending!</div>
-        </div>
-        
-        <div id="safeBanner" class="safe-banner">
-            <span>✓ All recipients verified - safe domain only</span>
-        </div>
-        
-        <div id="statusPanel" class="status-panel" style="display: none;">
-            <div class="status-row">
-                <span class="status-label">Total Recipients:</span>
-                <span class="status-value" id="totalCount">0</span>
-            </div>
-            <div class="status-row">
-                <span class="status-label">Safe (PayTM):</span>
-                <span class="status-value safe" id="safeCount">0</span>
-            </div>
-            <div class="status-row">
-                <span class="status-label">External:</span>
-                <span class="status-value warning" id="externalCount">0</span>
-            </div>
-        </div>
-        
-        <div id="emptyState" class="empty-state">
-            <div class="empty-icon">✉️</div>
-            <div class="empty-text">Add recipients to your email.<br/>SafeSend will verify they are from trusted domains.</div>
-        </div>
-        
-        <div id="statusIndicator" class="status-indicator">
-            🔄 Loading... Please wait.
-        </div>
+    <div class="header">⚠️ PayTM Safe Send</div>
+    
+    <div class="content">
+        <div class="emoji">✉️</div>
+        <div class="text">Add recipients to check if they are from paytm.com domain</div>
+    </div>
+    
+    <div class="warning-box" id="warningBox">
+        <div style="font-weight: bold; margin-bottom: 8px;">⚠️ External Recipients Detected:</div>
+        <div class="external-list" id="externalList"></div>
     </div>
 
     <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
     <script>
-        console.log('[SafeSend] Main script loaded');
+        console.log('[SafeSend] Page loaded');
         
-        const TRUSTED_DOMAINS = ['paytm.com'];
-        let monitoringInterval = null;
-        let isOfficeReady = false;
-        let isOutlook = false;
-
-        function updateStatus(type, message) {
-            try {
-                const indicator = document.getElementById('statusIndicator');
-                indicator.className = 'status-indicator ' + type;
-                indicator.textContent = message;
-            } catch (err) {
-                console.log('[SafeSend] updateStatus error:', err.message);
-            }
-        }
-
-        // Wait for Office to be defined
-        function initializeApp() {
-            console.log('[SafeSend] Checking if Office is available...');
-            
-            if (typeof Office === 'undefined') {
-                console.log('[SafeSend] Office not ready yet, waiting...');
-                updateStatus('', '🔄 Loading Office API...');
-                setTimeout(initializeApp, 500);
-                return;
-            }
-
-            console.log('[SafeSend] Office found! Calling Office.onReady...');
-            updateStatus('', '🔄 Initializing Outlook connection...');
-
+        try {
+            // Simple initialization
             Office.onReady(function(info) {
-                console.log('[SafeSend] Office.onReady called', info);
-                isOfficeReady = true;
-
+                console.log('[SafeSend] Office ready:', info.host);
+                
                 if (info.host === Office.HostType.Outlook) {
-                    console.log('[SafeSend] Outlook detected! Starting monitoring...');
-                    isOutlook = true;
-                    updateStatus('success', '✓ Connected to Outlook - Ready to monitor');
                     startMonitoring();
-                } else {
-                    console.log('[SafeSend] Not Outlook:', info.host);
-                    updateStatus('error', '✗ Not in Outlook context');
                 }
-            }).catch(function(error) {
-                console.log('[SafeSend] Office.onReady error:', error);
-                updateStatus('error', 'Office initialization error: ' + error.message);
             });
+        } catch (e) {
+            console.log('[SafeSend] Init error:', e.message);
         }
 
         function startMonitoring() {
-            console.log('[SafeSend] startMonitoring called');
+            console.log('[SafeSend] Starting monitor');
             
-            if (monitoringInterval) {
-                clearInterval(monitoringInterval);
-            }
-
-            monitoringInterval = setInterval(function() {
+            setInterval(function() {
                 try {
                     checkRecipients();
                 } catch (err) {
-                    console.log('[SafeSend] Monitor error:', err.message);
-                    updateStatus('error', 'Monitor error: ' + err.message);
+                    console.log('[SafeSend] Check error:', err.message);
                 }
-            }, 500);
-
-            console.log('[SafeSend] Monitoring started (500ms interval)');
+            }, 1000);
         }
 
         function checkRecipients() {
-            if (!isOfficeReady || !isOutlook) {
-                return;
-            }
-
             try {
                 const item = Office.context.mailbox.item;
-                
-                if (!item) {
-                    showEmptyState();
-                    return;
-                }
+                if (!item) return;
 
-                item.to.getAsync(function(toResult) {
-                    let allRecipients = [];
-                    
-                    if (toResult.status === Office.AsyncResultStatus.Succeeded && toResult.value) {
-                        allRecipients = allRecipients.concat(toResult.value);
-                    }
+                // Get recipients synchronously
+                const toField = item.to;
+                const ccField = item.cc;
+                const bccField = item.bcc;
 
-                    item.cc.getAsync(function(ccResult) {
-                        if (ccResult.status === Office.AsyncResultStatus.Succeeded && ccResult.value) {
-                            allRecipients = allRecipients.concat(ccResult.value);
+                // Try to get TO recipients
+                if (toField) {
+                    toField.getAsync(function(result) {
+                        try {
+                            if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                const recipients = result.value || [];
+                                processRecipients(recipients);
+                            }
+                        } catch (e) {
+                            console.log('[SafeSend] TO error:', e.message);
                         }
-
-                        item.bcc.getAsync(function(bccResult) {
-                            if (bccResult.status === Office.AsyncResultStatus.Succeeded && bccResult.value) {
-                                allRecipients = allRecipients.concat(bccResult.value);
-                            }
-
-                            if (allRecipients.length > 0) {
-                                displayRecipients(allRecipients);
-                            } else {
-                                showEmptyState();
-                            }
-                        });
                     });
-                });
+                }
             } catch (err) {
                 console.log('[SafeSend] checkRecipients error:', err.message);
             }
         }
 
-        function displayRecipients(recipients) {
+        function processRecipients(recipients) {
             const external = [];
-            const safe = [];
 
-            recipients.forEach(function(recipient) {
+            for (let i = 0; i < recipients.length; i++) {
                 try {
-                    const email = recipient.emailAddress.toLowerCase().trim();
-                    const domain = extractDomain(email);
+                    const email = recipients[i].emailAddress.toLowerCase();
+                    const domain = email.split('@')[1];
 
-                    if (TRUSTED_DOMAINS.includes(domain)) {
-                        safe.push({ email: email, domain: domain });
-                        console.log('[SafeSend SAFE]', email);
-                    } else {
-                        external.push({ email: email, domain: domain });
-                        console.log('[SafeSend EXTERNAL]', email);
+                    if (domain && domain !== 'paytm.com') {
+                        external.push(email);
                     }
-                } catch (err) {
-                    console.log('[SafeSend] Error processing recipient:', err.message);
+                } catch (e) {
+                    // Skip errors
                 }
-            });
-
-            try {
-                document.getElementById('emptyState').style.display = 'none';
-                document.getElementById('statusPanel').style.display = 'block';
-                document.getElementById('totalCount').textContent = recipients.length;
-                document.getElementById('safeCount').textContent = safe.length;
-                document.getElementById('externalCount').textContent = external.length;
-
-                if (external.length > 0) {
-                    console.log('[SafeSend] Showing WARNING banner');
-                    showWarningBanner(external);
-                    document.getElementById('safeBanner').classList.remove('show');
-                    updateStatus('success', '⚠️ ' + external.length + ' external recipient(s) detected!');
-                } else if (safe.length > 0) {
-                    console.log('[SafeSend] Showing SAFE banner');
-                    document.getElementById('warningBanner').classList.remove('show');
-                    document.getElementById('safeBanner').classList.add('show');
-                    updateStatus('success', '✓ All ' + safe.length + ' recipient(s) are safe');
-                }
-            } catch (err) {
-                console.log('[SafeSend] Display error:', err.message);
             }
-        }
 
-        function showWarningBanner(externalEmails) {
-            try {
-                const list = document.getElementById('recipientsList');
+            // Show warning if external found
+            const warningBox = document.getElementById('warningBox');
+            const externalList = document.getElementById('externalList');
+
+            if (external.length > 0) {
                 let html = '';
-                externalEmails.forEach(function(r) {
-                    html += '<div class="recipient-item">⚠️ ' + r.email + ' (' + r.domain + ')</div>';
-                });
-                list.innerHTML = html;
-                document.getElementById('warningBanner').classList.add('show');
-            } catch (err) {
-                console.log('[SafeSend] showWarningBanner error:', err.message);
-            }
-        }
-
-        function showEmptyState() {
-            try {
-                document.getElementById('warningBanner').classList.remove('show');
-                document.getElementById('safeBanner').classList.remove('show');
-                document.getElementById('statusPanel').style.display = 'none';
-                document.getElementById('emptyState').style.display = 'block';
-            } catch (err) {
-                console.log('[SafeSend] showEmptyState error:', err.message);
-            }
-        }
-
-        function extractDomain(email) {
-            try {
-                if (email && email.includes('@')) {
-                    const parts = email.split('@');
-                    return parts[parts.length - 1].toLowerCase().trim();
+                for (let i = 0; i < external.length; i++) {
+                    const domain = external[i].split('@')[1];
+                    html += '<div class="recipient">⚠️ ' + external[i] + ' (' + domain + ')</div>';
                 }
-                return email.toLowerCase().trim();
-            } catch (err) {
-                return '';
+                externalList.innerHTML = html;
+                warningBox.classList.add('show');
+                console.log('[SafeSend] Warning shown for:', external);
+            } else {
+                warningBox.classList.remove('show');
             }
         }
-
-        // Start initialization
-        console.log('[SafeSend] Page ready, starting initialization...');
-        initializeApp();
     </script>
 </body>
 </html>
