@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>PayTM Safe Send</title>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { 
+            width: 100%; 
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 3px solid #ff5252;
+        }
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #e0e0e0;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #ff6b6b;
+            padding-bottom: 8px;
+        }
+        .info-text {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .info-box {
+            background: #e8f5e9;
+            border-left: 4px solid #51cf66;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 12px 0;
+            font-size: 12px;
+            color: #2e7d32;
+        }
+        .warning-box {
+            background: #ffebee;
+            border-left: 4px solid #ff6b6b;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 12px 0;
+            font-size: 12px;
+            color: #c62828;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            color: #555;
+        }
+        .feature-list li:before {
+            content: "✓ ";
+            color: #51cf66;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .setting-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+        .setting-label {
+            flex: 1;
+            font-size: 13px;
+            color: #333;
+            font-weight: 500;
+        }
+        .setting-value {
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            font-family: monospace;
+        }
+        .button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+        }
+        .button:hover {
+            background: #ff5252;
+        }
+        .footer {
+            background: white;
+            padding: 12px;
+            font-size: 11px;
+            color: #999;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">⚠️ PayTM Safe Send</div>
+        
+        <div class="content">
+            <!-- Status Section -->
+            <div class="section">
+                <div class="section-title">Status</div>
+                <div class="info-box">
+                    ✓ Active and monitoring all sent emails
+                </div>
+                <div class="info-text">
+                    PayTM Safe Send is active and will warn you before sending emails to external (non-PayTM) recipients.
+                </div>
+            </div>
+
+            <!-- Protected Domain Section -->
+            <div class="section">
+                <div class="section-title">Protected Domain</div>
+                <div class="setting-row">
+                    <span class="setting-label">Trusted Domain:</span>
+                    <span class="setting-value">paytm.com</span>
+                </div>
+                <div class="info-text">
+                    Only recipients with @paytm.com email addresses are considered internal. All other domains will trigger a warning before send.
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="section">
+                <div class="section-title">Features</div>
+                <ul class="feature-list">
+                    <li>Warns before sending to external recipients</li>
+                    <li>Shows list of external recipient emails</li>
+                    <li>Requires user confirmation to proceed</li>
+                    <li>Protects Gmail and Office 365 accounts</li>
+                    <li>Works on Mac and Windows</li>
+                    <li>Automatic DLP enforcement</li>
+                </ul>
+            </div>
+
+            <!-- How It Works Section -->
+            <div class="section">
+                <div class="section-title">How It Works</div>
+                <div class="info-text">
+                    <strong>1. You compose an email and click Send</strong><br/>
+                    <br/>
+                    <strong>2. PayTM Safe Send checks all recipients</strong><br/>
+                    <br/>
+                    <strong>3. If external recipients found:</strong>
+                </div>
+                <div class="warning-box">
+                    A warning dialog appears showing the external email addresses. You can choose to:
+                    <br/>• <strong>Continue</strong> - Send the email anyway
+                    <br/>• <strong>Cancel</strong> - Stop and edit recipients
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="section">
+                <div class="section-title">Settings</div>
+                <div class="setting-row">
+                    <span class="setting-label">Version:</span>
+                    <span class="setting-value">1.0.0.0</span>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Provider:</span>
+                    <span class="setting-value">PayTM</span>
+                </div>
+            </div>
+
+            <!-- Support Section -->
+            <div class="section">
+                <div class="section-title">Support</div>
+                <div class="info-text">
+                    For issues or questions about PayTM Safe Send, visit:
+                </div>
+                <button class="button" onclick="openSupport()">GitHub Repository</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            PayTM Safe Send v1.0 | Protecting your email communications
+        </div>
+    </div>
+
+    <script>
+        Office.onReady(function(info) {
+            console.log('[PayTM SafeSend] Taskpane loaded');
+            if (info.host === Office.HostType.Outlook) {
+                console.log('[PayTM SafeSend] Outlook detected');
+            }
+        });
+
+        function openSupport() {
+            window.open('https://github.com/vikash3pandey-sys/outlook-alerts', '_blank');
+        }
+    </script>
+</body>
+</html>
