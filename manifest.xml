@@ -1,86 +1,93 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:type="MailApp">
-  <Id>12345678-1234-1234-1234-PayTMChecker99</Id>
-  <Version>1.0.0.0</Version>
-  <ProviderName>PayTM Receipt Checker</ProviderName>
-  <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="PayTM Receipt Checker"/>
-  <Description DefaultValue="Warning banner for non-PayTM emails"/>
-  
-  <Hosts>
-    <Host xsi:type="MailHost">
-      <DesktopFormFactor>
-        <ExtensionPoint xsi:type="MessageComposeCommandSurface">
-          <OfficeTab id="TabDefault">
-            <Group id="msgComposeGroup">
-              <Label resid="groupLabel"/>
-              <Control xsi:type="Button" id="msgComposeOpenPaneButton">
-                <Label resid="paneButtonLabel"/>
-                <Supertip>
-                  <Title resid="paneButtonLabel"/>
-                  <Description resid="paneButtonDesc"/>
-                </Supertip>
-                <Action xsi:type="ShowTaskPane">
-                  <SourceLocation resid="composePaneUrl"/>
-                </Action>
-              </Control>
-            </Group>
-          </OfficeTab>
-        </ExtensionPoint>
-      </DesktopFormFactor>
-    </Host>
-  </Hosts>
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+    xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" xsi:type="MailApp">
 
-  <Permissions>ReadWriteItem</Permissions>
+    <Id>12345678-90ab-cdef-1234-paytmsafesend01</Id>
+    <Version>1.0.0.0</Version>
+    <ProviderName>PayTM</ProviderName>
+    <DefaultLocale>en-US</DefaultLocale>
+    <DisplayName DefaultValue="PayTM Safe Send"/>
+    <Description DefaultValue="Get warned when sending emails to external (non-PayTM) recipients. Version 1.0"/>
+    <IconUrl DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/assets/icon32.png"/>
+    <HighResolutionIconUrl DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/assets/icon80.png"/>
+    <SupportUrl DefaultValue="https://github.com/vikash3pandey-sys/outlook-alerts"/>
+    <AppDomains>
+        <AppDomain>github.com</AppDomain>
+        <AppDomain>raw.githubusercontent.com</AppDomain>
+    </AppDomains>
 
-  <VersionOverrides xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
-                    xsi:type="VersionOverridesV1_0">
     <Hosts>
-      <Host xsi:type="MailHost">
-        <DesktopFormFactor>
-          <FunctionFile resid="functionFile"/>
-          <ExtensionPoint xsi:type="MessageComposeCommandSurface">
-            <OfficeTab id="TabDefault">
-              <Group id="msgComposeGroup">
-                <Label resid="groupLabel"/>
-                <Control xsi:type="Button" id="msgComposeOpenPaneButton">
-                  <Label resid="paneButtonLabel"/>
-                  <Supertip>
-                    <Title resid="paneButtonLabel"/>
-                    <Description resid="paneButtonDesc"/>
-                  </Supertip>
-                  <Action xsi:type="ShowTaskPane">
-                    <SourceLocation resid="composePaneUrl"/>
-                  </Action>
-                </Control>
-              </Group>
-            </OfficeTab>
-          </ExtensionPoint>
-        </DesktopFormFactor>
-      </Host>
+        <Host Name="Mailbox"/>
     </Hosts>
 
-    <Resources>
-      <bt:Images>
-        <bt:Image id="icon16" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/icon16.png"/>
-        <bt:Image id="icon32" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/icon32.png"/>
-        <bt:Image id="icon80" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/icon80.png"/>
-      </bt:Images>
+    <Requirements>
+        <Sets>
+            <Set Name="Mailbox" MinVersion="1.1"/>
+        </Sets>
+    </Requirements>
 
-      <bt:Urls>
-        <bt:Url id="functionFile" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/commands.html"/>
-        <bt:Url id="composePaneUrl" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/warning-banner.html"/>
-      </bt:Urls>
+    <FormSettings>
+        <Form xsi:type="ItemEdit">
+            <DesktopSettings>
+                <SourceLocation DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/taskpane.html"/>
+            </DesktopSettings>
+        </Form>
+    </FormSettings>
 
-      <bt:ShortStrings>
-        <bt:String id="groupLabel" DefaultValue="PayTM Check"/>
-        <bt:String id="paneButtonLabel" DefaultValue="Check Recipients"/>
-        <bt:String id="paneButtonDesc" DefaultValue="Verify email recipients - shows warning for external emails"/>
-      </bt:ShortStrings>
+    <Permissions>ReadWriteMailbox</Permissions>
 
-      <bt:LongStrings/>
-    </Resources>
-  </VersionOverrides>
+    <Rule xsi:type="RuleCollection" Mode="Or">
+        <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit" />
+        <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Edit"/>
+    </Rule>
+
+    <DisableEntityHighlighting>false</DisableEntityHighlighting>
+
+    <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+        <Requirements>
+            <bt:Sets DefaultMinVersion="1.5">
+                <bt:Set Name="Mailbox" />
+            </bt:Sets>
+        </Requirements>
+
+        <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
+            <Requirements>
+                <bt:Sets DefaultMinVersion="1.5">
+                    <bt:Set Name="Mailbox" />
+                </bt:Sets>
+            </Requirements>
+            <Hosts>
+                <Host xsi:type="MailHost">
+                    <DesktopFormFactor>
+                        <FunctionFile resid="residUILessFunctionFileUrl" />
+                        <ExtensionPoint xsi:type="Events">
+                            <Event Type="ItemSend" FunctionExecution="synchronous" FunctionName="checkExternalRecipients" />
+                        </ExtensionPoint>
+                    </DesktopFormFactor>
+                </Host>
+            </Hosts>
+            <Resources>
+                <bt:Images>
+                    <bt:Image id="Icon.16x16" DefaultValue="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IiNGRjMzMzMiIHJ4PSIyIi8+PHRleHQgeD0iOCIgeT0iOCIgZm9udC1zaXplPSIxMiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7ii4I8L3RleHQ+PC9zdmc+"/>
+                    <bt:Image id="Icon.32x32" DefaultValue="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIGZpbGw9IiNGRjMzMzMiIHJ4PSI0Ii8+PHRleHQgeD0iMTYiIHk9IjE2IiBmb250LXNpemU9IjIwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPui4I88L3RleHQ+PC9zdmc+"/>
+                    <bt:Image id="Icon.80x80" DefaultValue="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIGZpbGw9IiNGRjMzMzMiIHJ4PSI4Ii8+PHRleHQgeD0iNDAiIHk9IjQwIiBmb250LXNpemU9IjUwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPui4I88L3RleHQ+PC9zdmc+"/>
+                </bt:Images>
+                <bt:Urls>
+                    <bt:Url id="residUILessFunctionFileUrl" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/onSend.html"></bt:Url>
+                    <bt:Url id="Taskpane.Url" DefaultValue="https://raw.githubusercontent.com/vikash3pandey-sys/outlook-alerts/main/taskpane.html"/>
+                </bt:Urls>
+                <bt:ShortStrings>
+                    <bt:String id="GroupLabel" DefaultValue="PayTM Safe Send"/>
+                    <bt:String id="TaskpaneButton.Label" DefaultValue="Safe Send Settings"/>
+                    <bt:String id="ActionButton.Label" DefaultValue="Save Settings"/>
+                </bt:ShortStrings>
+                <bt:LongStrings>
+                    <bt:String id="TaskpaneButton.Tooltip" DefaultValue="View PayTM Safe Send settings and recipient information"/>
+                    <bt:String id="ActionButton.Tooltip" DefaultValue="Save your PayTM Safe Send configuration"/>
+                </bt:LongStrings>
+            </Resources>
+        </VersionOverrides>
+    </VersionOverrides>
 </OfficeApp>
