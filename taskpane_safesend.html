@@ -4,199 +4,285 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <title>Email Recipient Checker</title>
-    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
     <style>
-        body { 
-            font-family: "Segoe UI", "Helvetica Neue", sans-serif; 
-            padding: 15px; 
-            background-color: #f3f2f1;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { 
+            width: 100%; 
+            height: 100%; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
         }
-        .container {
-            background: white; 
-            padding: 15px; 
-            border: 1px solid #d1d1d1;
-            border-radius: 4px;
-            margin-bottom: 15px;
+        .container { 
+            width: 100%; 
+            height: 100%; 
+            display: flex; 
+            flex-direction: column;
+            padding: 0;
         }
-        h3 { 
-            margin-top: 0; 
-            border-bottom: 1px solid #eee; 
-            padding-bottom: 10px; 
+        .header { 
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white; 
+            padding: 16px;
+            text-align: center;
             font-size: 16px;
+            font-weight: 600;
+            flex-shrink: 0;
+            border-bottom: 2px solid #ff5252;
         }
-        .status-msg { margin-bottom: 10px; font-style: italic; font-size: 13px; }
-        
-        /* Status Colors */
-        .safe { color: green; font-weight: bold; }
-        .unsafe { color: #d13438; font-weight: bold; }
-        .neutral { color: #0078d4; }
-
-        /* Lists */
-        ul { padding-left: 0; list-style: none; margin: 0; }
-        li { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 14px; display: flex; justify-content: space-between; }
-        
-        /* Settings Section */
-        .settings-box { margin-top: 20px; border-top: 2px solid #eee; padding-top: 10px; }
-        input[type="text"] {
-            width: 70%;
-            padding: 5px;
-            border: 1px solid #999;
+        .content { 
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
         }
-        button {
-            padding: 5px 10px;
-            background-color: #0078d4;
-            color: white;
-            border: none;
-            cursor: pointer;
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #e0e0e0;
         }
-        button:hover { background-color: #106ebe; }
-        .delete-btn {
-            background: none; border: none; color: #d13438; font-size: 12px; cursor: pointer;
+        .emoji { font-size: 48px; text-align: center; margin-bottom: 12px; }
+        .text { 
+            font-size: 13px; 
+            color: #666; 
+            line-height: 1.6; 
+            text-align: center;
         }
-        .delete-btn:hover { text-decoration: underline; }
+        .warning-section {
+            background: #ffebee;
+            border-left: 4px solid #ff6b6b;
+            display: none;
+        }
+        .warning-section.show {
+            display: block;
+        }
+        .warning-title { 
+            font-weight: 700; 
+            color: #c62828; 
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .recipient-item {
+            background: #fff3e0;
+            padding: 10px;
+            margin: 6px 0;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #e65100;
+            border-left: 3px solid #ff9800;
+        }
+        .status-item {
+            background: #e8f5e9;
+            border-left: 3px solid #51cf66;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #2e7d32;
+            margin: 6px 0;
+        }
+        .status-item.error {
+            background: #ffebee;
+            border-left-color: #ff6b6b;
+            color: #c62828;
+        }
+        .footer {
+            background: white;
+            padding: 12px;
+            font-size: 11px;
+            color: #999;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h3>Recipient Status</h3>
-        <div id="status" class="status-msg">Initializing...</div>
-        <ul id="list"></ul>
-        <div style="margin-top: 10px; text-align: center;">
-            <button onclick="checkRecipients()">🔄 Re-Scan</button>
-        </div>
-    </div>
-
-    <div class="container settings-box">
-        <h3>Trusted Domains</h3>
-        <p style="font-size: 12px; color: #666;">Add domains (e.g. paytm.com) to mark them as safe.</p>
+        <div class="header">⚠️ Email Recipient Checker</div>
         
-        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-            <input type="text" id="newDomain" placeholder="example.com" />
-            <button onclick="addDomain()">Add</button>
+        <div class="content">
+            <div class="section">
+                <div class="emoji">✉️</div>
+                <div class="text">Verify external vs internal recipients</div>
+            </div>
+
+            <div id="statusSection" class="section">
+                <div id="statusContainer"></div>
+            </div>
+
+            <div id="warningSection" class="section warning-section">
+                <div class="warning-title">⚠️ External Recipients Detected:</div>
+                <div id="recipientsList"></div>
+            </div>
         </div>
 
-        <ul id="domainList"></ul>
+        <div class="footer">Ready to check recipients</div>
     </div>
 
     <script>
-        // Storage Key
-        var STORAGE_KEY = "trusted_domains_list";
-        var defaultDomains = ["paytm.com"]; 
+        console.log('[STARTUP] Page loaded');
 
-        Office.onReady(function(info) {
-            loadDomains(); // Load saved domains first
-            
-            var statusDiv = document.getElementById("status");
-            statusDiv.innerText = "Add-in Loaded.";
+        // Initialize immediately with safe defaults
+        let isInitialized = false;
+        let isOutlookReady = false;
 
-            if (info.host === Office.HostType.Outlook) {
-                statusDiv.innerText = "Scanning recipients...";
-                checkRecipients();
-                
-                // Add event handler to auto-check when recipients change (Modern Outlook only)
-                try {
-                    Office.context.mailbox.item.addHandlerAsync(Office.EventType.RecipientsChanged, checkRecipients);
-                } catch(e) { console.log("Auto-check not supported on this version."); }
-            }
-        });
-
-        // --- DOMAIN MANAGEMENT ---
-        function getTrustedDomains() {
-            var stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                return JSON.parse(stored);
-            }
-            return defaultDomains;
+        function log(msg) {
+            console.log('[SafeSend]', msg);
         }
 
-        function loadDomains() {
-            var domains = getTrustedDomains();
-            var list = document.getElementById("domainList");
-            list.innerHTML = "";
-            
-            for (var i = 0; i < domains.length; i++) {
-                var d = domains[i];
-                var li = document.createElement("li");
-                li.innerHTML = "<span>" + d + "</span> <button class='delete-btn' onclick='removeDomain(\"" + d + "\")'>Remove</button>";
-                list.appendChild(li);
-            }
-        }
-
-        function addDomain() {
-            var input = document.getElementById("newDomain");
-            var domain = input.value.trim().toLowerCase().replace("@", ""); // Remove @ if user typed it
-            
-            if (domain) {
-                var domains = getTrustedDomains();
-                if (domains.indexOf(domain) === -1) {
-                    domains.push(domain);
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(domains));
-                    loadDomains();
-                    checkRecipients(); // Re-scan immediately
-                    input.value = "";
+        function updateStatus(html) {
+            try {
+                const container = document.getElementById('statusContainer');
+                if (container) {
+                    container.innerHTML = html;
                 }
+            } catch (e) {
+                log('updateStatus error: ' + e.message);
             }
         }
 
-        function removeDomain(domainToRemove) {
-            var domains = getTrustedDomains();
-            var filtered = domains.filter(function(d) { return d !== domainToRemove; });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-            loadDomains();
-            checkRecipients(); // Re-scan immediately
+        // Update status immediately
+        updateStatus('<div class="status-item">🔄 Initializing...</div>');
+
+        // Initialize Office.js
+        function initializeOffice() {
+            log('initializeOffice called');
+
+            try {
+                if (typeof Office === 'undefined') {
+                    log('Office not available yet');
+                    updateStatus('<div class="status-item error">⏳ Waiting for Outlook...</div>');
+                    setTimeout(initializeOffice, 500);
+                    return;
+                }
+
+                log('Office available, calling onReady');
+
+                Office.onReady(function(info) {
+                    log('Office.onReady fired: ' + info.host);
+                    isInitialized = true;
+
+                    if (info.host === Office.HostType.Outlook) {
+                        log('Outlook detected!');
+                        isOutlookReady = true;
+                        updateStatus('<div class="status-item">✓ Connected to Outlook</div>');
+                        startMonitoring();
+                    } else {
+                        log('Not Outlook: ' + info.host);
+                        updateStatus('<div class="status-item error">✗ Not in Outlook</div>');
+                    }
+                }).catch(function(error) {
+                    log('Office.onReady error: ' + error.message);
+                    updateStatus('<div class="status-item error">✗ Error: ' + error.message + '</div>');
+                });
+
+            } catch (e) {
+                log('initializeOffice error: ' + e.message);
+                updateStatus('<div class="status-item error">✗ ' + e.message + '</div>');
+            }
         }
 
-        // --- CHECK LOGIC ---
+        // Start monitoring recipients
+        function startMonitoring() {
+            log('startMonitoring called');
+            updateStatus('<div class="status-item">🔄 Monitoring...</div>');
+
+            // Monitor every 1 second
+            setInterval(function() {
+                try {
+                    checkRecipients();
+                } catch (e) {
+                    log('Monitor interval error: ' + e.message);
+                }
+            }, 1000);
+        }
+
+        // Check recipients
         function checkRecipients() {
-            Office.context.mailbox.item.to.getAsync(function(result) {
-                if (result.status === Office.AsyncResultStatus.Succeeded) {
-                    var recipients = result.value;
-                    var list = document.getElementById("list");
-                    var status = document.getElementById("status");
-                    var trustedList = getTrustedDomains();
-                    var allSafe = true;
+            if (!isOutlookReady) {
+                return;
+            }
 
-                    list.innerHTML = ""; // Clear list
+            try {
+                const item = Office.context.mailbox.item;
+                if (!item) {
+                    return;
+                }
 
-                    if (recipients.length === 0) {
-                        status.innerText = "No recipients found.";
+                // Get TO recipients
+                item.to.getAsync(function(result) {
+                    if (result.status !== Office.AsyncResultStatus.Succeeded) {
                         return;
                     }
 
-                    for (var i = 0; i < recipients.length; i++) {
-                        var r = recipients[i];
-                        var email = r.emailAddress.toLowerCase();
-                        var isSafe = false;
+                    const recipients = result.value || [];
+                    if (recipients.length === 0) {
+                        // No recipients
+                        document.getElementById('warningSection').classList.remove('show');
+                        updateStatus('<div class="status-item">Waiting for recipients...</div>');
+                        return;
+                    }
 
-                        // Check against trusted list
-                        for (var j = 0; j < trustedList.length; j++) {
-                            if (email.indexOf("@" + trustedList[j]) > -1) {
-                                isSafe = true;
-                                break;
+                    // Process recipients
+                    const external = [];
+                    const safe = [];
+
+                    for (let i = 0; i < recipients.length; i++) {
+                        try {
+                            const email = (recipients[i].emailAddress || '').toLowerCase().trim();
+                            const domain = email.split('@')[1] || '';
+
+                            if (domain === 'paytm.com') {
+                                safe.push(email);
+                            } else if (domain) {
+                                external.push({ email: email, domain: domain });
                             }
+                        } catch (e) {
+                            log('Error processing recipient: ' + e.message);
                         }
-
-                        var li = document.createElement("li");
-                        if (isSafe) {
-                            li.innerHTML = "<span class='safe'>\u2705 Trusted:</span> " + email;
-                        } else {
-                            li.innerHTML = "<span class='unsafe'>\u26A0\uFE0F External:</span> " + email;
-                            allSafe = false;
-                        }
-                        list.appendChild(li);
                     }
 
-                    if (allSafe) {
-                        status.innerText = "✅ All recipients are trusted.";
-                        status.style.color = "green";
+                    // Update display
+                    if (external.length > 0) {
+                        // Show warning
+                        const warningSection = document.getElementById('warningSection');
+                        const recipientsList = document.getElementById('recipientsList');
+                        let html = '';
+
+                        for (let i = 0; i < external.length; i++) {
+                            html += '<div class="recipient-item">⚠️ ' + external[i].email + ' (' + external[i].domain + ')</div>';
+                        }
+
+                        recipientsList.innerHTML = html;
+                        warningSection.classList.add('show');
+
+                        updateStatus('<div class="status-item error">⚠️ ' + external.length + ' external recipient(s) found</div>');
+                        log('External recipients found: ' + external.length);
                     } else {
-                        status.innerText = "⚠️ External/Untrusted recipients found.";
-                        status.style.color = "#d13438";
+                        // All safe
+                        document.getElementById('warningSection').classList.remove('show');
+                        updateStatus('<div class="status-item">✓ All ' + recipients.length + ' recipient(s) are safe</div>');
+                        log('All recipients safe: ' + safe.length);
                     }
-                }
-            });
+
+                });
+
+            } catch (e) {
+                log('checkRecipients error: ' + e.message);
+            }
         }
+
+        // Start initialization
+        log('Calling initializeOffice');
+        initializeOffice();
+
+        // Keep-alive (prevent timeout)
+        setInterval(function() {
+            // Empty - just keep connection alive
+        }, 30000);
+
     </script>
 </body>
 </html>
