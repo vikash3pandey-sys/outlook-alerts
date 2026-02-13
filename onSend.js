@@ -1,20 +1,15 @@
-/*
- * Warning Only (Soft Block) Logic
- */
-
+/* onSend.js - Warning Only Logic */
 Office.onReady();
 
 function allowedToSend(event) {
     var item = Office.context.mailbox.item;
-
-    // 1. Get Recipients
     item.to.getAsync(function(result) {
         if (result.status === Office.AsyncResultStatus.Succeeded) {
             var recipients = result.value;
+            // HARDCODED TRUSTED DOMAIN
             var trustedDomains = ["paytm.com"]; 
             var externalFound = false;
 
-            // 2. Check for External
             for (var i = 0; i < recipients.length; i++) {
                 var email = recipients[i].emailAddress.toLowerCase();
                 var isSafe = false;
@@ -27,16 +22,16 @@ function allowedToSend(event) {
             }
 
             if (externalFound) {
-                // 3. Check if we already warned the user
+                // Check if we already showed the warning
                 item.loadCustomPropertiesAsync(function (propResult) {
                     var props = propResult.value;
                     var alreadyWarned = props.get("WarningShown");
 
                     if (alreadyWarned) {
-                        // User clicked Send AGAIN -> ALLOW IT
+                        // User clicked Send AGAIN -> ALLOW
                         event.completed({ allowEvent: true });
                     } else {
-                        // First time -> BLOCK IT and show warning
+                        // First time -> BLOCK & WARN
                         props.set("WarningShown", true);
                         props.saveAsync(function(saveResult) {
                             event.completed({ 
@@ -47,7 +42,6 @@ function allowedToSend(event) {
                     }
                 });
             } else {
-                // Safe -> Allow
                 event.completed({ allowEvent: true });
             }
         } else {
