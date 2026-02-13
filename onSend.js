@@ -1,81 +1,69 @@
 /*
- * SOFT BLOCK LOGIC (Warning Only)
- * 1. Internal emails -> Send immediately (No prompt).
- * 2. External emails -> Show Warning once.
- * 3. User clicks Send again -> Email goes through.
+ * BIGGER WARNING LOGIC (Popup Dialog)
  */
 
 Office.onReady();
 
-function allowedToSend(event) {
+var dialog; // Global dialog variable
+
+function checkExternalRecipients(event) {
     var item = Office.context.mailbox.item;
 
     item.to.getAsync(function(result) {
         if (result.status !== Office.AsyncResultStatus.Succeeded) {
-            // Fail-safe: If we can't read recipients, let it go.
             event.completed({ allowEvent: true });
             return;
         }
 
         var recipients = result.value;
-        // 1. DEFINE YOUR TRUSTED DOMAINS HERE (Lowercase)
         var trustedDomains = ["paytm.com", "paytm.in"]; 
-        
         var externalFound = false;
-        var externalEmails = [];
 
-        // 2. CHECK RECIPIENTS
+        // 1. Check Logic
         for (var i = 0; i < recipients.length; i++) {
             var email = recipients[i].emailAddress.toLowerCase();
             var isSafe = false;
-
-            // Check if email ends with any trusted domain
             for (var j = 0; j < trustedDomains.length; j++) {
                 if (email.indexOf("@" + trustedDomains[j]) > -1) {
-                    isSafe = true;
-                    break;
+                    isSafe = true; break;
                 }
             }
-
-            if (!isSafe) {
-                externalFound = true;
-                externalEmails.push(email);
-            }
+            if (!isSafe) { externalFound = true; break; }
         }
 
-        // 3. DECISION LOGIC
+        // 2. Decision
         if (!externalFound) {
-            // CASE A: All recipients are Internal/Safe.
-            // ACTION: Send immediately. No prompt.
+            // Internal -> Send Silently
             event.completed({ allowEvent: true });
-        } 
-        else {
-            // CASE B: External recipients found.
-            // Check if we already warned the user for THIS specific email.
-            item.loadCustomPropertiesAsync(function (propResult) {
-                var props = propResult.value;
-                var warningStatus = props.get("WarningShown_V1"); // Unique key
+        } else {
+            // External -> Open BIG POPUP Dialog
+            var url = "https://vikash3pandey-sys.github.io/outlook-alerts/warning.html";
 
-                if (warningStatus === "yes") {
-                    // User has already seen the warning and clicked Send AGAIN.
-                    // ACTION: Allow the email to send.
-                    // (Optional: Clear the flag for next time, though not strictly needed for sent items)
-                    props.remove("WarningShown_V1");
-                    props.saveAsync(function() {
-                         event.completed({ allowEvent: true });
-                    });
-                } else {
-                    // First time user clicked Send.
-                    // ACTION: Block email, Show Warning, Set Flag.
-                    props.set("WarningShown_V1", "yes");
-                    props.saveAsync(function(saveResult) {
-                        event.completed({ 
-                            allowEvent: false, 
-                            errorMessage: "⚠️ External Recipient Warning: You are sending to " + externalEmails.length + " outside address(es). Click Send again to confirm." 
+            // Open dialog (Width/Height are % of screen)
+            Office.context.ui.displayDialogAsync(url, { height: 40, width: 30, displayInIframe: true },
+                function (asyncResult) {
+                    if (asyncResult.status === Office.AsyncResultStatus.Failed) {
+                        // If popup fails to open (blocker), block email safely
+                        event.completed({ allowEvent: false, errorMessage: "⚠️ Security Check Failed: Could not open warning popup." });
+                    } else {
+                        // Dialog Opened Successfully
+                        dialog = asyncResult.value;
+                        
+                        // Listen for button click from the popup
+                        dialog.addEventHandler(Office.EventType.DialogMessageReceived, function(arg) {
+                            dialog.close(); // Close popup
+                            
+                            if (arg.message === "allow") {
+                                // User clicked "Send Anyway"
+                                event.completed({ allowEvent: true });
+                            } else {
+                                // User clicked "Cancel"
+                                event.completed({ allowEvent: false });
+                            }
                         });
-                    });
+                    }
                 }
-            });
+            );
         }
     });
 }
