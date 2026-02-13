@@ -1,73 +1,449 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PayTM Safe Send</title>
-    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
+    <meta charset="UTF-8" />
+    <title>PayTM Safe Send - Taskpane</title>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
     <style>
-        body { font-family: "Segoe UI", "Helvetica Neue", sans-serif; padding: 10px; background-color: #f3f2f1; }
-        h3 { border-bottom: 1px solid #c8c6c4; padding-bottom: 5px; margin-top: 0; }
-        .card { background: white; padding: 10px; border: 1px solid #d1d1d1; margin-bottom: 5px; }
-        .safe { color: green; font-weight: bold; }
-        .unsafe { color: #a80000; font-weight: bold; }
-        #status { font-style: italic; color: #666; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        .header {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        /* Warning Banner */
+        .warning-banner {
+            display: none;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .warning-banner.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .warning-title {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recipients-list {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .recipient-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            word-break: break-all;
+        }
+
+        .recipient-item:last-child {
+            border-bottom: none;
+        }
+
+        .recipient-icon {
+            margin-right: 6px;
+        }
+
+        .warning-message {
+            font-size: 12px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        /* Safe Banner */
+        .safe-banner {
+            display: none;
+            background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+            color: white;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .safe-banner.show {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Status Panel */
+        .status-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #e0e0e0;
+            font-size: 12px;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .status-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .status-value {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .status-value.warning {
+            color: #ff6b6b;
+        }
+
+        .status-value.safe {
+            color: #51cf66;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* Debug Panel */
+        .debug-panel {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 12px;
+            font-family: monospace;
+            font-size: 10px;
+            color: #333;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .debug-panel.show {
+            display: block;
+        }
+
+        .debug-log {
+            padding: 4px 0;
+            border-bottom: 1px solid #ddd;
+            word-break: break-all;
+        }
+
+        .debug-log:last-child {
+            border-bottom: none;
+        }
+
+        .debug-error {
+            color: #d32f2f;
+        }
+
+        .debug-success {
+            color: #388e3c;
+        }
+
+        .debug-info {
+            color: #1976d2;
+        }
+
+        /* Disable button */
+        .debug-btn {
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .debug-btn:hover {
+            background: #e0e0e0;
+        }
     </style>
 </head>
 <body>
-    <h3>Recipient Checker</h3>
-    <div id="content">
-        <p id="status">Loading Outlook context...</p>
-        <ul id="list" style="list-style-type: none; padding: 0;"></ul>
+    <div class="container">
+        <div class="header">⚠️ PayTM Safe Send</div>
+
+        <!-- Warning Banner -->
+        <div id="warningBanner" class="warning-banner">
+            <div class="warning-title">
+                <span>⚠️ External Recipients</span>
+            </div>
+            <div class="recipients-list" id="recipientsList"></div>
+            <div class="warning-message">
+                Only paytm.com is trusted. Verify these recipients before sending!
+            </div>
+        </div>
+
+        <!-- Safe Banner -->
+        <div id="safeBanner" class="safe-banner">
+            <span>✓ All recipients verified - safe domain only</span>
+        </div>
+
+        <!-- Status Panel -->
+        <div id="statusPanel" class="status-panel" style="display: none;">
+            <div class="status-row">
+                <span class="status-label">Total Recipients:</span>
+                <span class="status-value" id="totalCount">0</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">Safe (PayTM):</span>
+                <span class="status-value safe" id="safeCount">0</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">External:</span>
+                <span class="status-value warning" id="externalCount">0</span>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state">
+            <div class="empty-icon">✉️</div>
+            <div class="empty-text">
+                Add recipients to your email.<br/>
+                SafeSend will verify they are from trusted domains.
+            </div>
+        </div>
+
+        <!-- Debug Panel -->
+        <div id="debugPanel" class="debug-panel">
+            <div style="padding: 8px 0; font-weight: bold; border-bottom: 1px solid #ddd; margin-bottom: 8px;">Debug Log:</div>
+            <div id="debugLog"></div>
+            <button class="debug-btn" onclick="clearDebugLog()">Clear Log</button>
+        </div>
+
+        <button class="debug-btn" onclick="toggleDebug()" style="width: 100%; margin-top: 12px;">Show Debug Info</button>
     </div>
 
     <script>
-        // Use older "var" and "function" syntax to prevent crashes in IE11/Old Outlook
-        Office.onReady(function(info) {
-            document.getElementById("status").innerText = "Ready. Checking...";
+        const TRUSTED_DOMAINS = ['paytm.com'];
+        let debugEnabled = false;
+        let monitoringInterval = null;
+
+        // Initialize
+        Office.onReady((info) => {
+            log('[INIT] Office ready', 'success');
             if (info.host === Office.HostType.Outlook) {
-                checkRecipients();
+                log('[INIT] Outlook detected', 'success');
+                log('[INIT] Starting monitoring...', 'info');
+                startMonitoring();
             } else {
-                document.getElementById("status").innerText = "Error: Not running in Outlook.";
+                log(`[ERROR] Not Outlook: ${info.host}`, 'error');
             }
         });
 
+        function startMonitoring() {
+            if (monitoringInterval) clearInterval(monitoringInterval);
+            
+            monitoringInterval = setInterval(() => {
+                try {
+                    checkRecipients();
+                } catch (err) {
+                    log(`[MONITOR ERROR] ${err.message}`, 'error');
+                }
+            }, 500);
+
+            log('[MONITOR] Interval set to 500ms', 'success');
+        }
+
         function checkRecipients() {
-            // Get recipients from the "To" field
-            Office.context.mailbox.item.to.getAsync(function(result) {
-                if (result.status === Office.AsyncResultStatus.Succeeded) {
-                    var recipients = result.value;
-                    var list = document.getElementById("list");
-                    var status = document.getElementById("status");
-                    var allSafe = true;
+            const item = Office.context.mailbox.item;
+            
+            if (!item) {
+                showEmptyState();
+                return;
+            }
 
-                    // Clear previous list
-                    list.innerHTML = "";
+            item.to.getAsync((toResult) => {
+                let allRecipients = [];
+                
+                if (toResult.status === Office.AsyncResultStatus.Succeeded && toResult.value) {
+                    log(`[TO] ${toResult.value.length} recipients`, 'info');
+                    allRecipients = allRecipients.concat(toResult.value);
+                }
 
-                    if (recipients.length === 0) {
-                        status.innerText = "No recipients found.";
-                        return;
+                item.cc.getAsync((ccResult) => {
+                    if (ccResult.status === Office.AsyncResultStatus.Succeeded && ccResult.value) {
+                        log(`[CC] ${ccResult.value.length} recipients`, 'info');
+                        allRecipients = allRecipients.concat(ccResult.value);
                     }
 
-                    for (var i = 0; i < recipients.length; i++) {
-                        var r = recipients[i];
-                        var li = document.createElement("li");
-                        li.className = "card";
-                        
-                        // Check if email contains paytm.com
-                        if (r.emailAddress.toLowerCase().indexOf("@paytm.com") > -1) {
-                            li.innerHTML = "<span class='safe'>\u2705 Internal:</span> " + r.emailAddress;
-                        } else {
-                            li.innerHTML = "<span class='unsafe'>\u26A0\uFE0F External:</span> " + r.emailAddress;
-                            allSafe = false;
+                    item.bcc.getAsync((bccResult) => {
+                        if (bccResult.status === Office.AsyncResultStatus.Succeeded && bccResult.value) {
+                            log(`[BCC] ${bccResult.value.length} recipients`, 'info');
+                            allRecipients = allRecipients.concat(bccResult.value);
                         }
-                        list.appendChild(li);
-                    }
 
-                    status.innerText = allSafe ? "Safe: All recipients are internal." : "WARNING: External recipients detected.";
-                    status.style.color = allSafe ? "green" : "red";
+                        if (allRecipients.length > 0) {
+                            displayRecipients(allRecipients);
+                        } else {
+                            showEmptyState();
+                        }
+                    });
+                });
+            });
+        }
+
+        function displayRecipients(recipients) {
+            const external = [];
+            const safe = [];
+
+            recipients.forEach((recipient) => {
+                const email = recipient.emailAddress.toLowerCase().trim();
+                const domain = extractDomain(email);
+
+                if (TRUSTED_DOMAINS.includes(domain)) {
+                    safe.push({ email, domain });
+                    log(`[SAFE] ${email}`, 'success');
                 } else {
-                    document.getElementById("status").innerText = "Failed to read recipients. Try again.";
+                    external.push({ email, domain });
+                    log(`[EXTERNAL] ${email}`, 'error');
                 }
             });
+
+            // Update UI
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('statusPanel').style.display = 'block';
+            document.getElementById('totalCount').textContent = recipients.length;
+            document.getElementById('safeCount').textContent = safe.length;
+            document.getElementById('externalCount').textContent = external.length;
+
+            if (external.length > 0) {
+                showWarningBanner(external);
+                document.getElementById('safeBanner').classList.remove('show');
+                log('[UI] Showing WARNING banner', 'error');
+            } else if (safe.length > 0) {
+                document.getElementById('warningBanner').classList.remove('show');
+                document.getElementById('safeBanner').classList.add('show');
+                log('[UI] Showing SAFE banner', 'success');
+            }
+        }
+
+        function showWarningBanner(externalEmails) {
+            const list = document.getElementById('recipientsList');
+            list.innerHTML = externalEmails.map(r => {
+                return `<div class="recipient-item"><span class="recipient-icon">⚠️</span> ${r.email} (${r.domain})</div>`;
+            }).join('');
+
+            document.getElementById('warningBanner').classList.add('show');
+        }
+
+        function showEmptyState() {
+            document.getElementById('warningBanner').classList.remove('show');
+            document.getElementById('safeBanner').classList.remove('show');
+            document.getElementById('statusPanel').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        function extractDomain(email) {
+            if (email && email.includes('@')) {
+                const parts = email.split('@');
+                return parts[parts.length - 1].toLowerCase().trim();
+            }
+            return email.toLowerCase().trim();
+        }
+
+        // Debug functions
+        function log(msg, type = 'info') {
+            console.log(msg);
+
+            if (debugEnabled) {
+                const debugLog = document.getElementById('debugLog');
+                const logEntry = document.createElement('div');
+                logEntry.className = `debug-log debug-${type}`;
+                logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+                debugLog.appendChild(logEntry);
+                debugLog.scrollTop = debugLog.scrollHeight;
+            }
+        }
+
+        function toggleDebug() {
+            debugEnabled = !debugEnabled;
+            const debugPanel = document.getElementById('debugPanel');
+            if (debugEnabled) {
+                debugPanel.classList.add('show');
+                log('[DEBUG] Debug enabled', 'success');
+            } else {
+                debugPanel.classList.remove('show');
+            }
+        }
+
+        function clearDebugLog() {
+            document.getElementById('debugLog').innerHTML = '';
         }
     </script>
 </body>
