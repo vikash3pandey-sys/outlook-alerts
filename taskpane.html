@@ -40,93 +40,54 @@
             margin-bottom: 16px;
             border: 1px solid #e0e0e0;
         }
-        .section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 12px;
-            border-bottom: 2px solid #ff6b6b;
-            padding-bottom: 8px;
+        .warning-banner {
+            background: #ffebee;
+            border-left: 4px solid #ff6b6b;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            display: none;
         }
-        .info-text {
+        .warning-banner.show {
+            display: block;
+        }
+        .warning-title {
+            font-weight: 700;
+            color: #c62828;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .recipients-list {
+            background: #fff3e0;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .recipient-item {
+            padding: 6px 0;
+            font-size: 12px;
+            color: #e65100;
+            border-bottom: 1px solid #ffe0b2;
+        }
+        .recipient-item:last-child {
+            border-bottom: none;
+        }
+        .safe-banner {
+            background: #e8f5e9;
+            border-left: 4px solid #51cf66;
+            padding: 16px;
+            border-radius: 6px;
+            color: #2e7d32;
+            display: none;
+            font-weight: 600;
+        }
+        .safe-banner.show {
+            display: block;
+        }
+        .status-text {
             font-size: 13px;
             color: #666;
             line-height: 1.6;
-        }
-        .info-box {
-            background: #e8f5e9;
-            border-left: 4px solid #51cf66;
-            padding: 12px;
-            border-radius: 4px;
-            margin: 12px 0;
-            font-size: 12px;
-            color: #2e7d32;
-        }
-        .warning-box {
-            background: #ffebee;
-            border-left: 4px solid #ff6b6b;
-            padding: 12px;
-            border-radius: 4px;
-            margin: 12px 0;
-            font-size: 12px;
-            color: #c62828;
-        }
-        .feature-list {
-            list-style: none;
-            padding: 0;
-        }
-        .feature-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 13px;
-            color: #555;
-        }
-        .feature-list li:before {
-            content: "✓ ";
-            color: #51cf66;
-            font-weight: bold;
-            margin-right: 8px;
-        }
-        .feature-list li:last-child {
-            border-bottom: none;
-        }
-        .setting-row {
-            display: flex;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .setting-row:last-child {
-            border-bottom: none;
-        }
-        .setting-label {
-            flex: 1;
-            font-size: 13px;
-            color: #333;
-            font-weight: 500;
-        }
-        .setting-value {
-            background: #f5f5f5;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #666;
-            font-family: monospace;
-        }
-        .button {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 12px;
-        }
-        .button:hover {
-            background: #ff5252;
         }
         .footer {
             background: white;
@@ -143,97 +104,128 @@
         <div class="header">⚠️ PayTM Safe Send</div>
         
         <div class="content">
-            <!-- Status Section -->
-            <div class="section">
-                <div class="section-title">Status</div>
-                <div class="info-box">
-                    ✓ Active and monitoring all sent emails
-                </div>
-                <div class="info-text">
-                    PayTM Safe Send is active and will warn you before sending emails to external (non-PayTM) recipients.
-                </div>
+            <div id="warningBanner" class="warning-banner">
+                <div class="warning-title">⚠️ External Recipients Detected</div>
+                <div class="status-text">You are sending to recipients outside paytm.com domain:</div>
+                <div class="recipients-list" id="recipientsList"></div>
+                <div class="status-text" style="margin-top: 12px;">⚠️ <strong>VERIFY BEFORE SENDING</strong></div>
             </div>
 
-            <!-- Protected Domain Section -->
-            <div class="section">
-                <div class="section-title">Protected Domain</div>
-                <div class="setting-row">
-                    <span class="setting-label">Trusted Domain:</span>
-                    <span class="setting-value">paytm.com</span>
-                </div>
-                <div class="info-text">
-                    Only recipients with @paytm.com email addresses are considered internal. All other domains will trigger a warning before send.
-                </div>
+            <div id="safeBanner" class="safe-banner">
+                ✓ All recipients verified - Safe to send
             </div>
 
-            <!-- Features Section -->
             <div class="section">
-                <div class="section-title">Features</div>
-                <ul class="feature-list">
-                    <li>Warns before sending to external recipients</li>
-                    <li>Shows list of external recipient emails</li>
-                    <li>Requires user confirmation to proceed</li>
-                    <li>Protects Gmail and Office 365 accounts</li>
-                    <li>Works on Mac and Windows</li>
-                    <li>Automatic DLP enforcement</li>
-                </ul>
-            </div>
-
-            <!-- How It Works Section -->
-            <div class="section">
-                <div class="section-title">How It Works</div>
-                <div class="info-text">
-                    <strong>1. You compose an email and click Send</strong><br/>
-                    <br/>
-                    <strong>2. PayTM Safe Send checks all recipients</strong><br/>
-                    <br/>
-                    <strong>3. If external recipients found:</strong>
+                <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                    <strong>PayTM Safe Send</strong> monitors your email recipients in real-time.
+                    <br/><br/>
+                    When composing, it automatically checks if any recipients are outside the paytm.com domain.
+                    <br/><br/>
+                    ✓ Only @paytm.com = Safe to send<br/>
+                    ⚠️ External domains = Please verify!
                 </div>
-                <div class="warning-box">
-                    A warning dialog appears showing the external email addresses. You can choose to:
-                    <br/>• <strong>Continue</strong> - Send the email anyway
-                    <br/>• <strong>Cancel</strong> - Stop and edit recipients
-                </div>
-            </div>
-
-            <!-- Settings Section -->
-            <div class="section">
-                <div class="section-title">Settings</div>
-                <div class="setting-row">
-                    <span class="setting-label">Version:</span>
-                    <span class="setting-value">1.0.0.0</span>
-                </div>
-                <div class="setting-row">
-                    <span class="setting-label">Provider:</span>
-                    <span class="setting-value">PayTM</span>
-                </div>
-            </div>
-
-            <!-- Support Section -->
-            <div class="section">
-                <div class="section-title">Support</div>
-                <div class="info-text">
-                    For issues or questions about PayTM Safe Send, visit:
-                </div>
-                <button class="button" onclick="openSupport()">GitHub Repository</button>
             </div>
         </div>
 
         <div class="footer">
-            PayTM Safe Send v1.0 | Protecting your email communications
+            PayTM Safe Send - Monitor your recipients
         </div>
     </div>
 
     <script>
-        Office.onReady(function(info) {
-            console.log('[PayTM SafeSend] Taskpane loaded');
+        console.log('[PayTM SafeSend] Taskpane loaded');
+
+        const TRUSTED_DOMAIN = 'paytm.com';
+        let lastCheck = '';
+
+        Office.onReady((info) => {
+            console.log('[PayTM SafeSend] Office ready');
             if (info.host === Office.HostType.Outlook) {
                 console.log('[PayTM SafeSend] Outlook detected');
+                startMonitoring();
             }
         });
 
-        function openSupport() {
-            window.open('https://github.com/vikash3pandey-sys/outlook-alerts', '_blank');
+        function startMonitoring() {
+            // Monitor every 500ms
+            setInterval(() => {
+                try {
+                    checkRecipients();
+                } catch (err) {
+                    console.log('[PayTM SafeSend] Monitor error: ' + err.message);
+                }
+            }, 500);
+        }
+
+        function checkRecipients() {
+            try {
+                const item = Office.context.mailbox.item;
+                if (!item) return;
+
+                item.to.getAsync((result) => {
+                    try {
+                        if (result.status !== Office.AsyncResultStatus.Succeeded) {
+                            hideWarning();
+                            return;
+                        }
+
+                        const recipients = result.value || [];
+                        const external = [];
+
+                        for (let i = 0; i < recipients.length; i++) {
+                            const email = (recipients[i].emailAddress || '').toLowerCase().trim();
+                            const domain = email.split('@')[1];
+
+                            if (domain && domain !== TRUSTED_DOMAIN) {
+                                external.push(email);
+                            }
+                        }
+
+                        // Show/hide warnings
+                        if (external.length > 0) {
+                            showWarning(external);
+                        } else if (recipients.length > 0) {
+                            showSafe();
+                        } else {
+                            hideWarning();
+                        }
+
+                    } catch (err) {
+                        console.log('[PayTM SafeSend] Error: ' + err.message);
+                    }
+                });
+
+            } catch (err) {
+                console.log('[PayTM SafeSend] Check error: ' + err.message);
+            }
+        }
+
+        function showWarning(externalEmails) {
+            const banner = document.getElementById('warningBanner');
+            const list = document.getElementById('recipientsList');
+            
+            let html = '';
+            for (let i = 0; i < externalEmails.length; i++) {
+                const domain = externalEmails[i].split('@')[1];
+                html += '<div class="recipient-item">⚠️ ' + externalEmails[i] + ' (' + domain + ')</div>';
+            }
+            
+            list.innerHTML = html;
+            banner.classList.add('show');
+            document.getElementById('safeBanner').classList.remove('show');
+            
+            console.log('[PayTM SafeSend] Warning shown: ' + externalEmails.length + ' external');
+        }
+
+        function showSafe() {
+            document.getElementById('warningBanner').classList.remove('show');
+            document.getElementById('safeBanner').classList.add('show');
+            console.log('[PayTM SafeSend] All safe');
+        }
+
+        function hideWarning() {
+            document.getElementById('warningBanner').classList.remove('show');
+            document.getElementById('safeBanner').classList.remove('show');
         }
     </script>
 </body>
