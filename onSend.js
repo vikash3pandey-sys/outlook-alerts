@@ -8,7 +8,7 @@ function checkExternalRecipients(event) {
 // 1. Load Dynamic Trusted Domains
     var savedDomains = Office.context.roamingSettings.get("TrustedDomains");
     var defaultDomains = [
-        "paytmpayments.com", "paytmmoney.net", "paytminsurance.co.in", 
+        "paytmpayments.com", "paytmmoney.com", "paytminsurance.co.in", 
         "paytmservices.com", "paytm.com", "powerplay.today", "inapaq.com", 
         "paytmmall.io", "cloud.paytm.com", "firstgames.id", "ticketnew.com", 
         "paytmmall.com", "paytmplay.com", "mobiquest.com", "fellowinfotech.com", 
