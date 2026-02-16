@@ -5,18 +5,24 @@ var dialog;
 function checkExternalRecipients(event) {
     var item = Office.context.mailbox.item;
 
-    // 1. Load Dynamic Trusted Domains
+// 1. Load Dynamic Trusted Domains
     var savedDomains = Office.context.roamingSettings.get("TrustedDomains");
-    var trustedDomains = savedDomains ? JSON.parse(savedDomains) : ["paytm.com"];
-
-    item.to.getAsync(function(result) {
-        if (result.status !== Office.AsyncResultStatus.Succeeded) {
-            event.completed({ allowEvent: true });
-            return;
-        }
-
-        var recipients = result.value;
-        var externalEmails = []; // Array to store the exact external addresses
+    var defaultDomains = [
+        "paytmpayments.com", "paytmmoney.net", "paytminsurance.co.in", 
+        "paytmservices.com", "paytm.com", "powerplay.today", "inapaq.com", 
+        "paytmmall.io", "cloud.paytm.com", "firstgames.id", "ticketnew.com", 
+        "paytmmall.com", "paytmplay.com", "mobiquest.com", "fellowinfotech.com", 
+        "paytminsuretech.com", "alpineinfocom.com", "firstgames.in", "first.games", 
+        "paytmfoundation.org", "paytmforbusiness.in", "ps.paytm.com", 
+        "paytmcloud.in", "paytm.insure", "mypaytm.com", "paytm.business", 
+        "fincollect.in", "creditmate.in", "gamepind.com", "insider.paytm.com", 
+        "pmltp.com", "finmate.tech", "cdo.paytm.com", "paytmoffers.in", 
+        "paytmmloyal.com", "ocltp.com", "paytm.ca", "quarkinfocom.com", 
+        "pibpltp.com", "paytmfirstgames.com", "paytmgic.com", "paytmwholesale.com", 
+        "paytmlabs.com", "info.paytmfirstgames.com", "acumengame.com", 
+        "robustinfo.com", "one97.sg"
+    ];
+    var trustedDomains = savedDomains ? JSON.parse(savedDomains) : defaultDomains;
 
         // 2. Check logic
         for (var i = 0; i < recipients.length; i++) {
