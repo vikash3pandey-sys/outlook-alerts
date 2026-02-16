@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Safe Send Settings</title>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
+    <style>
+        body { font-family: "Segoe UI", sans-serif; padding: 15px; background: #f4f4f4; }
+        .card { background: white; padding: 15px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        h3 { margin-top: 0; font-size: 16px; color: #333; }
+        p { font-size: 12px; color: #666; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        input[type="text"] { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button.btn-add { background: #0078D4; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        .btn-remove { color: #d13438; background: none; border: none; cursor: pointer; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h3>Trusted Domains</h3>
+        <p>Add domains (e.g. vendor.com) to mark them as safe. They will not trigger the warning.</p>
+        
+        <div class="input-group">
+            <input type="text" id="newDomain" placeholder="example.com">
+            <button id="addBtn" class="btn-add">Add</button>
+        </div>
+
+        <ul id="domainList">
+            </ul>
+    </div>
+
+    <script>
+        Office.onReady(function(info) {
+            if (info.host === Office.HostType.Outlook) {
+                loadDomains();
+                document.getElementById("addBtn").onclick = addDomain;
+            }
+        });
+
+        function loadDomains() {
+            // Read saved settings from Outlook
+            var saved = Office.context.roamingSettings.get("TrustedDomains");
+            var domains = saved ? JSON.parse(saved) : ["paytm.com"];
+            
+            var list = document.getElementById("domainList");
+            list.innerHTML = "";
+            domains.forEach(function(d) {
+                list.innerHTML += "<li>" + d + " <button class='btn-remove' onclick='removeDomain(\"" + d + "\")'>Remove</button></li>";
+            });
+        }
+
+        function addDomain() {
+            var input = document.getElementById("newDomain").value.toLowerCase().trim();
+            if (!input) return;
+            
+            var saved = Office.context.roamingSettings.get("TrustedDomains");
+            var domains = saved ? JSON.parse(saved) : ["paytm.com"];
+            
+            if (domains.indexOf(input) === -1) {
+                domains.push(input);
+                // Save settings to the cloud
+                Office.context.roamingSettings.set("TrustedDomains", JSON.stringify(domains));
+                Office.context.roamingSettings.saveAsync(function() {
+                    loadDomains();
+                    document.getElementById("newDomain").value = "";
+                });
+            }
+        }
+
+        function removeDomain(domain) {
+            var saved = Office.context.roamingSettings.get("TrustedDomains");
+            var domains = saved ? JSON.parse(saved) : ["paytm.com"];
+            
+            domains = domains.filter(function(d) { return d !== domain; });
+            Office.context.roamingSettings.set("TrustedDomains", JSON.stringify(domains));
+            Office.context.roamingSettings.saveAsync(function() {
+                loadDomains();
+            });
+        }
+    </script>
+</body>
+</html>
