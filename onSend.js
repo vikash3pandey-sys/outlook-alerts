@@ -24,7 +24,6 @@ function checkExternalRecipients(event) {
         var recipients = result.value;
         var externalEmails = []; 
 
-        // 1. Scan Logic
         for (var i = 0; i < recipients.length; i++) {
             var email = recipients[i].emailAddress.toLowerCase();
             var isSafe = false;
@@ -39,18 +38,34 @@ function checkExternalRecipients(event) {
             }
         }
 
-        // 2. Pass result to Native Prompt
         if (externalEmails.length === 0) {
-            // Internal Only -> Send Silently
+            // Safe -> Send immediately
             event.completed({ allowEvent: true });
         } else {
-            var recWord = externalEmails.length === 1 ? "recipient" : "recipients";
-            var warningText = "Confidentiality Warning: You are sending to " + externalEmails.length + " external " + recWord + ".\n\n" + externalEmails.join(", ");
-            
-            // This triggers the native Outlook prompt with "Send Anyway" and "Don't Send" buttons
-            event.completed({ 
-                allowEvent: false, 
-                errorMessage: warningText
+            // External Found -> Check if user is clicking "Send" for the second time
+            item.loadCustomPropertiesAsync(function (propResult) {
+                var props = propResult.value;
+                var warningStatus = props.get("WarningBypass"); 
+
+                if (warningStatus === "yes") {
+                    // USER CLICKED SEND TWICE -> "Send Anyway"
+                    props.remove("WarningBypass");
+                    props.saveAsync(function() {
+                         event.completed({ allowEvent: true });
+                    });
+                } else {
+                    // FIRST CLICK -> Show native warning banner inside the email
+                    props.set("WarningBypass", "yes");
+                    props.saveAsync(function() {
+                        var recWord = externalEmails.length === 1 ? "recipient" : "recipients";
+                        var bannerText = "Confidentiality Warning: You are sending to " + externalEmails.length + " external " + recWord + " outside Paytm. Click 'Send' again to send anyway.";
+                        
+                        event.completed({ 
+                            allowEvent: false, 
+                            errorMessage: bannerText
+                        });
+                    });
+                }
             });
         }
     });
